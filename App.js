@@ -1,14 +1,41 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, {Component} from 'react';
+import { StyleSheet, Text, View, Button, Alert, TouchableOpacity, TextInput } from 'react-native';
+import Form1 from './components/form1';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+
+export default class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state= {
+      isPressed: false,
+      name: '',
+      surname: '',
+      groupNumber: '',
+      faculty: '',
+    }
+  }
+
+  onClick = () => {
+    const buttonState = this.state.isPressed;
+    this.setState({ 
+      isPressed: !buttonState,
+      name: '',
+      surname: '',
+      groupNumber: '',
+      faculty: ''
+    });
+
+  }
+
+  render() {
+    return (
+      <View style={styles.container}>
+        <Form1/>
+      </View>
+    );
+  
+  }
 }
 
 const styles = StyleSheet.create({
@@ -16,6 +43,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-around',
   },
 });
