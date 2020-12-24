@@ -1,42 +1,54 @@
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import React, {Component} from 'react';
-import { StyleSheet, Text, View, Button, Alert, TouchableOpacity, TextInput } from 'react-native';
-import Form1 from './components/form1';
-import Form2 from './components/form2';
-import Form3 from './components/form3';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import defaultImg from './assets/default.jpg';
 
+export default function App() {
+  const [selectedImage, setSelectedImage] = React.useState(null);
 
-export default class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state= {
-      view: 1,
+  let openImagePickerAsync = async () => {
+    let permissionResult = await ImagePicker.requestCameraRollPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert('Permission to access camera roll is required!');
+      return;
     }
-  }
 
-  onChangeView = () => {
-    const viewPage = this.state.view < 3 ? this.state.view + 1 : 1;
-    this.setState({ view: viewPage });
-  }
+    let pickerResult = await ImagePicker.launchImageLibraryAsync();
 
-  render() {
-    return (
-      <View style={styles.container}>
-        { this.state.view === 1 && <Form1/> }
-        { this.state.view === 2 && <Form2/> }
-        { this.state.view === 3 && <Form3/> }
-        <TouchableOpacity
-          onPress={() => this.onChangeView()}
-        >
-          <Text style = {styles.changeViewButton}>
-            Change View
-          </Text>
-        </TouchableOpacity>
+    if (pickerResult.cancelled === true) {
+      return;
+    }
 
-      </View>
-    );
-  
-  }
+    setSelectedImage({ localUri: pickerResult.uri });
+  };
+
+function closeImg(){
+setSelectedImage(null)
+}
+  return (
+    selectedImage?
+    <View style={styles.container} >
+    <Image 
+      source={{ uri: selectedImage.localUri }}
+      style={styles.thumbnail}
+    />
+     <TouchableOpacity onPress={closeImg} style={styles.button}>
+        <Text style={styles.buttonText}>Back</Text>
+      </TouchableOpacity>
+  </View>:
+    <View style={styles.container}>
+     <Image source={defaultImg} style={styles.logo} />
+      <Text style={styles.instructions}>
+        To view a photo from your phone, just press the button below!
+      </Text>
+
+      <TouchableOpacity onPress={openImagePickerAsync} style={styles.button}>
+        <Text style={styles.buttonText}>Pick a photo</Text>
+      </TouchableOpacity>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -44,16 +56,32 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  changeViewButton: {
-    borderWidth: 1,
-    padding: 15,
-    width: 180,
-    marginBottom: 30,
-    borderColor: 'black',
-    // backgroundColor: 'blue',
+  logo: {
+    width: 305,
+    height: 159,
+    marginBottom: 20,
+  },
+  instructions: {
+    color: '#888',
+    fontSize: 18,
+    marginHorizontal: 15,
+    marginBottom: 10,
     textAlign: 'center',
-    fontSize: 25,
-    color: '#000'
-  }
+  },
+  button: {
+    backgroundColor: 'blue',
+    padding: 20,
+    borderRadius: 5,
+  },
+  buttonText: {
+    fontSize: 20,
+    color: '#fff',
+  },
+  thumbnail: {
+    width: 500,
+    height: 500,
+    resizeMode: 'contain',
+  },
 });
