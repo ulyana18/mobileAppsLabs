@@ -1,59 +1,187 @@
-import { StatusBar } from 'expo-status-bar';
-import React, {Component} from 'react';
-import { StyleSheet, Text, View, Button, Alert, TouchableOpacity, TextInput } from 'react-native';
-import Form1 from './components/form1';
-import Form2 from './components/form2';
-import Form3 from './components/form3';
+import React, { Component } from "react";
+import {
+  Text,
+  View,
+  StyleSheet,
+  Animated,
+  TouchableOpacity,
+  Button
+} from "react-native";
 
+export default class MyComponent extends Component {
+  state = {
+    ready: false,
+    SlideInLeft: new Animated.Value(0),
+    slideUpValue: new Animated.Value(0),
+    fadeValue: new Animated.Value(0),
+    duration: 1000,
+  };
 
-export default class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state= {
-      view: 1,
-    }
+  _restart() {
+    this.setState({ SlideInLeft: new Animated.Value(0) });
+    this.setState({ slideUpValue: new Animated.Value(0) });
+    this.setState({ fadeValue: new Animated.Value(0) });
+    this.setState({ ready: false });
+  }
+  _startParallel = () => {
+    return Animated.parallel([
+      Animated.timing(this.state.SlideInLeft, {
+        toValue: 1,
+        duration: this.state.duration,
+        useNativeDriver: true
+      }),
+      Animated.timing(this.state.fadeValue, {
+        toValue: 1,
+        duration: this.state.duration,
+        useNativeDriver: true
+      }),
+      Animated.timing(this.state.slideUpValue, {
+        toValue: 1,
+        duration: this.state.duration,
+        useNativeDriver: true
+      })
+    ]).start();
+  };
+
+  setNewDuration=(value)=>{
+    this.setState({ duration: value });
   }
 
-  onChangeView = () => {
-    const viewPage = this.state.view < 3 ? this.state.view + 1 : 1;
-    this.setState({ view: viewPage });
-  }
-
+  _startSequence() {
+    Animated.sequence([
+      Animated.timing(this.state.SlideInLeft, {
+        toValue: 1,
+        duration: this.state.duration,
+        useNativeDriver: true
+      }),
+      Animated.timing(this.state.fadeValue, {
+        toValue: 1,
+        duration: this.state.duration,
+        useNativeDriver: true
+      }),
+      Animated.timing(this.state.slideUpValue, {
+        toValue: 1,
+        duration: this.state.duration,
+        useNativeDriver: true
+      })
+    ]).start();
+  };
   render() {
+    let { slideUpValue, fadeValue, SlideInLeft } = this.state;
     return (
       <View style={styles.container}>
-        { this.state.view === 1 && <Form1/> }
-        { this.state.view === 2 && <Form2/> }
-        { this.state.view === 3 && <Form3/> }
-        <TouchableOpacity
-          onPress={() => this.onChangeView()}
+        <View style={styles.headerBtns}>
+          <TouchableOpacity style={styles.btn} onPress={() => this._startParallel()}>
+            <Text style={styles.textBtn}>Start parallel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.btn} onPress={() => this._restart()}>
+            <Text style={styles.textBtn}>Restart</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.btn} onPress={() => this._startSequence()}>
+            <Text style={styles.textBtn}>Start sequence</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.headerBtns}>
+          <Button title='500' onPress={() =>this.setNewDuration(500)} />
+          <Button title='1000'  onPress={() =>this.setNewDuration(1000)} />
+          <Button title='1500'  onPress={() =>this.setNewDuration(1500)} />
+          <Button title='2000'  onPress={() =>this.setNewDuration(2000)} />
+        </View>
+        <Animated.View
+          style={{
+            transform: [
+              {
+                translateX: slideUpValue.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [-600, 0]
+                })
+              }
+            ],
+            flex: 1,
+            height: 250,
+            width: 200,
+            borderRadius: 12,
+            backgroundColor: "#c00",
+            justifyContent: "center"
+          }}
         >
-          <Text style = {styles.changeViewButton}>
-            Change View
-          </Text>
-        </TouchableOpacity>
-
+          <Text style={styles.text}>SlideUp </Text>
+        </Animated.View>
+        <Animated.View
+          style={{
+            transform: [
+              {
+                translateY: SlideInLeft.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [600, 0]
+                })
+              }
+            ],
+            flex: 1,
+            height: 250,
+            width: 200,
+            borderRadius: 12,
+            backgroundColor: "#347a2a",
+            justifyContent: "center"
+          }}
+        >
+          <Text style={styles.text}>SlideInLeft </Text>
+        </Animated.View>
+        <Animated.View
+          style={{
+            opacity: fadeValue,
+            flex: 1,
+            height: 250,
+            width: 200,
+            borderRadius: 12,
+            backgroundColor: "#f4f",
+            justifyContent: "center"
+          }}
+        >
+          <Text style={styles.text}>Fade </Text>
+        </Animated.View>
       </View>
     );
-  
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
+    backgroundColor: "#FFF",
+    alignItems: "center"
   },
-  changeViewButton: {
-    borderWidth: 1,
-    padding: 15,
-    width: 180,
-    marginBottom: 30,
-    borderColor: 'black',
-    // backgroundColor: 'blue',
-    textAlign: 'center',
-    fontSize: 25,
-    color: '#000'
-  }
+  item: {},
+  btn: {
+    backgroundColor: "#480032",
+    width: 100,
+    height: 40,
+    padding: 3,
+    justifyContent: "center",
+    borderRadius: 6,
+    marginTop: 29,
+    marginHorizontal: 5,
+  },
+  text: {
+    fontSize: 20,
+    color: "#fff",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  item1: {
+    backgroundColor: "red",
+    padding: 20,
+    width: 100,
+    margin: 10
+  },
+
+  textBtn: {
+    color: "#f4f4f4",
+    fontWeight: "bold",
+    textAlign: "center",
+
+  },
+  headerBtns: {
+    flexDirection: 'row',
+  },
 });
